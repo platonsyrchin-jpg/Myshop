@@ -21,7 +21,9 @@ DB_PORT = clean(os.getenv("DB_PORT"))
 DB_NAME = clean(os.getenv("DB_NAME"))
 
 DATABASE_URL = (
+
     f"postgresql+psycopg://"
+    
     f"{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 )
 

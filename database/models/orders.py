@@ -1,5 +1,6 @@
 from sqlalchemy import BigInteger, String, DECIMAL, ForeignKey, DateTime, func
 from sqlalchemy.orm import relationship, Mapped, mapped_column
+from database.base import Base
 
 class Orders(Base):
     __tablename__ = 'orders'
