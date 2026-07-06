@@ -1,5 +1,4 @@
 from sqlalchemy import BigInteger, String, DECIMAL, ForeignKey
-from sqlalchemy.dialects import sqlite
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from .users import Users
 from database.base import Base
@@ -29,5 +28,5 @@ class FinallyCarts(Base):
     user_cart: Mapped['Carts'] = relationship(back_populates='finally_id')
 
     __table_args__ = (
-        {'sqlite_autoincrement'}
+        {'sqlite_autoincrement': True}
     )
