@@ -10,3 +10,6 @@ def start_keyboard():
         ],
         resize_keyboard=True
     )
+
+def get_main_menu():
+    pass
