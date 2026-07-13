@@ -1,5 +1,5 @@
 from aiogram import Router, F
-from aiogram.types import Message, chat, ReplyKeyboardRemove
+from aiogram.types import Message
 
 from database.utils import db_update_user
 from keyboards.reply import get_main_menu
