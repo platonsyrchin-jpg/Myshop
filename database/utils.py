@@ -1,8 +1,7 @@
-import select
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session, subqueryload
+from sqlalchemy.orm import Session
 from database.base import engine
-from sqlalchemy import update
+from sqlalchemy import update, select
 from database.models import (Users,Products,Carts,Orders,Categories,FinallyCarts)
 
 
@@ -29,15 +28,14 @@ def db_update_user(chat_id: int, phone: str):
         session.execute(query)
         session.commit()
 
-print(db_update_user(chat_id=123, phone="123").__doc__)
 
 def db_create_user_cart(chat_id: int):
     """Создание корзины пользователя после регистрации"""
     try:
         with get_session() as session:
-            subquery = session.scalar(select(Users)).where(Users.telegram == chat_id)
-            query = Carts(user_id=subquery)
-            session.add(subquery)
+            subquery = session.scalar(select(Users).where(Users.telegram == chat_id))
+            query = Carts(user_id=subquery.id)
+            session.add(query)
             session.commit()
             return True
     except IntegrityError:
