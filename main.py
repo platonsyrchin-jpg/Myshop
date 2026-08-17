@@ -9,7 +9,7 @@ dp = Dispatcher()
 
 dp.include_router(h01_start.router)
 dp.include_router(h02_get_contact.router)
-dp.include_router(h03_order_handler)
+dp.include_router(h03_order_handler.router)
 
 
 async def main():
