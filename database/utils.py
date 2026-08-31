@@ -47,7 +47,7 @@ def db_create_user_cart(chat_id: int):
 def db_get_all_category():
     """получение всех категорий"""
     with get_session() as session:
-        query = session.query(Carts).all()
+        query = select(Categories)
         return session.scalars(query).all()
 
 

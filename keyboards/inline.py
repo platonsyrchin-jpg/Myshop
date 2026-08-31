@@ -1,7 +1,7 @@
 from aiogram.types import InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from database.utils import db_get_all_category
+from database.utils import db_get_all_category, db_get_finally_price
 
 
 def create_category_menu(chat_id):
@@ -17,3 +17,6 @@ def create_category_menu(chat_id):
 
     builder.adjust(1,2)
     return builder.as_markup()
+
+def show_product_by_category(category_id):
+    pass
