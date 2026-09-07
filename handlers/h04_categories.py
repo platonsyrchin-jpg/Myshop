@@ -1,12 +1,11 @@
-from email import message
-
 from aiogram import Router, F
 from aiogram.exceptions import TelegramBadRequest
-from aiogram.types import CallbackQuery, message_id, InlineKeyboardMarkup
+from aiogram.types import CallbackQuery
 
 from keyboards.inline import show_product_by_category, create_category_menu
 
 router = Router()
+
 
 @router.callback_query(F.data.regexp(r"^categories_(?\d+)$"))
 async def show_product(callback: CallbackQuery):
@@ -24,7 +23,8 @@ async def show_product(callback: CallbackQuery):
     except TelegramBadRequest:
         await callback.answer("Категория не найдена")
 
-@router.callback_query(F.data=="return_to_category")
+
+@router.callback_query(F.data == "return_to_category")
 async def return_to_category(callback: CallbackQuery):
     """Возврат к списку категорий"""
     chat_id = callback.message.chat.id
