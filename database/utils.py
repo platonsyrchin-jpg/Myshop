@@ -79,4 +79,16 @@ def db_get_products(category_id):
         query = select(Products).where(Products.category_id == category_id)
         return session.scalars(query).all()
 
+def db_get_products_by_id(product_id):
+    """Плучение продуктов поих ID"""
+    with get_session() as session:
+        query = select(Products).where(Products.id == product_id)
+        return session.scalar(query)
+
+def db_get_user_cart(chat_id):
+    """Получение корзины пользрвателя по его ID"""
+    with get_session() as session:
+        query = select(Carts).join(Users).where(Users.telegram == chat_id)
+        return session.scalar(query)
+
 
