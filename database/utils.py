@@ -1,3 +1,4 @@
+from sqlalchemy.dialects.mysql import DECIMAL
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
@@ -80,15 +81,72 @@ def db_get_products(category_id):
         return session.scalars(query).all()
 
 def db_get_products_by_id(product_id):
-    """Плучение продуктов поих ID"""
+    """Получение продуктов поих ID"""
     with get_session() as session:
         query = select(Products).where(Products.id == product_id)
         return session.scalar(query)
 
 def db_get_user_cart(chat_id):
-    """Получение корзины пользрвателя по его ID"""
+    """Получение корзины пользователя по его ID"""
     with get_session() as session:
         query = select(Carts).join(Users).where(Users.telegram == chat_id)
         return session.scalar(query)
+
+def db_add_or_update_item(
+        cart_id: int,
+        product_id: int,
+        product_name: str,
+        product_price: DECIMAL,
+        increment: int = 0):
+    """Добавление или изменение товара"""
+    try:
+        with get_session() as session:
+            item = (session.query(FinallyCarts)
+                    .filter_by(cart_id=cart_id, product_id=product_id)
+                    .first())
+            if item:
+                if increment != 0:
+                    item.quantity = max(1, item.quantity + increment)
+                else:
+                    qty = 1 if increment <= 0 else increment
+                    item = FinallyCarts(
+                        cart_id=cart_id,
+                        product_id=product_id,
+                        product_name=product_name,
+                        quantity=qty,
+                        final_price=0
+                    )
+                    session.add(item)
+
+                item.final_price = item.quantity * product_price
+
+                products_sum, total_products = session.query(
+                    func.coalesce(func.sum(FinallyCarts.final_price), 0),
+                    func.coalesce(func.sum(FinallyCarts.quantity), 0),
+                ).filter(
+                    FinallyCarts.cart_id == cart_id,
+                ).one()
+
+                session.query(Carts).filter(
+                    Carts.id == cart_id
+                ).update({
+                    Carts.total_price: products_sum,
+                    Carts.total_products: total_products
+                })
+                session.commit()
+
+                return {
+                    "status":"ok",
+                    "total_price": float(products_sum),
+                    "total_products": int(total_products),
+                    "products_quantity": item.quantity,
+                }
+    except Exception as e:
+        print(e)
+        return {"status": "error"}
+
+
+
+
 
 
