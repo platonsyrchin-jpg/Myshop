@@ -1,8 +1,10 @@
 from aiogram import Router, F, Bot
-from aiogram.types import CallbackQuery, FSInputFile, InlineKeyboardMarkup, chat
+from aiogram.exceptions import TelegramBadRequest
+from aiogram.types import CallbackQuery, FSInputFile, InlineKeyboardMarkup, chat, message_id
 
 from bot_utils.message_utils import text_for_caption
-from database.utils import db_get_products_by_id, db_get_user_cart, db_add_or_update_item
+from database.utils import db_get_products_by_id, db_get_user_cart, db_add_or_update_item, db_get_all_category
+from keyboards.inline import quantity_cart_controls, create_category_menu
 from keyboards.reply import phone_button
 
 router = Router()
@@ -50,3 +52,23 @@ async def ask_for_phone(chat_id: int, bot: Bot):
     await bot.send_message(chat_id=chat_id, text="Предоставьте номер телефона для оформления заказа",
                            reply_markup=phone_button())
 
+
+@router.callback_query(F.data == "from_detail_to_category")
+async def handle_back_to_category(callback: CallbackQuery, bot: Bot):
+    """Возвращает к списку всех категорий"""
+    chat_id = callback.message.chat.id
+    message_id = callback.message.message_id
+
+    try:
+        await bot.delete_message(chat_id, message_id)
+    except TelegramBadRequest:
+        pass
+
+    categories = db_get_all_category()
+    if not categories:
+        await bot.send_message(chat_id=chat_id,text="Категория отсутствует")
+        return
+
+    keyboard = create_category_menu(chat_id)
+    await bot.send_photo(chat_id=chat_id, text="Выберите категорию", reply_markup=keyboard)
+    await callback.answer()
