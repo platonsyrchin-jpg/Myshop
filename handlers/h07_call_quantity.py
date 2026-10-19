@@ -1,9 +1,6 @@
-from pydoc import resolve
-
 from aiogram import Router, F, Bot
 from aiogram.exceptions import TelegramBadRequest
-from aiogram.types import CallbackQuery, FSInputFile, InputMediaPhoto, InlineKeyboardMarkup
-from sqlalchemy.ext.asyncio import result
+from aiogram.types import CallbackQuery, FSInputFile, InputMediaPhoto
 
 from bot_utils.message_utils import text_for_caption
 from database.utils import db_get_product_by_name, db_get_user_cart, db_add_or_update_item

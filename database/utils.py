@@ -81,7 +81,7 @@ def db_get_products(category_id):
         return session.scalars(query).all()
 
 def db_get_products_by_id(product_id):
-    """Получение продуктов поих ID"""
+    """Получение продуктов по их ID"""
     with get_session() as session:
         query = select(Products).where(Products.id == product_id)
         return session.scalar(query)
