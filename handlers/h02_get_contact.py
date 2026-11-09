@@ -12,6 +12,7 @@ router = Router()
 async def update_contact(message: Message):
     """обновление данных пользователя, получение номера телефона"""
     chat_id = message.chat.id
+    print(chat_id)
     phone = message.contact.phone_number
 
     db_update_user(chat_id, phone)

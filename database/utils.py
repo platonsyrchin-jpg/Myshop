@@ -172,7 +172,14 @@ def db_get_cart_items(chat_id):
             })
         return result
 
+def db_get_user_phone(chat_id):
+    """получение номера телефона по id в телеграм"""
+    with get_session() as session:
+        query = select(Users.phone).where(Users.telegram == chat_id)
+        return session.execute(query).fetchone()[0]
 
+def db_save_order_history(chat_id):
+    pass
 
-
-
+def db_clear_final_cart(chat_id):
+    pass
