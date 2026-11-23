@@ -1,10 +1,9 @@
+from sqlalchemy import update, select, join, delete, func
 from sqlalchemy.dialects.mysql import DECIMAL
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.asyncio import result
 from sqlalchemy.orm import Session
-from sqlalchemy.sql import func
+
 from database.base import engine
-from sqlalchemy import update, select, join
 from database.models import (Users, Products, Carts, Orders, Categories, FinallyCarts)
 
 
@@ -75,11 +74,13 @@ def db_get_last_orders(chat_id, limit=5):
         )
         return session.scalars(query).all()
 
+
 def db_get_products(category_id):
     """Получение продуктов по id категории"""
     with get_session() as session:
         query = select(Products).where(Products.category_id == category_id)
         return session.scalars(query).all()
+
 
 def db_get_products_by_id(product_id):
     """Получение продуктов по их ID"""
@@ -87,11 +88,13 @@ def db_get_products_by_id(product_id):
         query = select(Products).where(Products.id == product_id)
         return session.scalar(query)
 
+
 def db_get_user_cart(chat_id):
     """Получение корзины пользователя по его ID"""
     with get_session() as session:
         query = select(Carts).join(Users).where(Users.telegram == chat_id)
         return session.scalar(query)
+
 
 def db_add_or_update_item(
         cart_id: int,
@@ -137,7 +140,7 @@ def db_add_or_update_item(
                 session.commit()
 
                 return {
-                    "status":"ok",
+                    "status": "ok",
                     "total_price": float(products_sum),
                     "total_products": int(total_products),
                     "products_quantity": item.quantity,
@@ -146,11 +149,13 @@ def db_add_or_update_item(
         print(e)
         return {"status": "error"}
 
+
 def db_get_product_by_name(product_name):
     '''получаем продукт по его имени'''
     with get_session() as session:
         query = select(Products).where(Products.product_name == product_name)
         return session.scalar(query)
+
 
 def db_get_cart_items(chat_id):
     '''Получаем товары из корзины пользователя'''
@@ -172,14 +177,53 @@ def db_get_cart_items(chat_id):
             })
         return result
 
+
 def db_get_user_phone(chat_id):
     """получение номера телефона по id в телеграм"""
     with get_session() as session:
         query = select(Users.phone).where(Users.telegram == chat_id)
         return session.execute(query).fetchone()[0]
 
+
 def db_save_order_history(chat_id):
-    pass
+    '''сохраняем историю заказов'''
+    cart = db_get_user_cart(chat_id)
+    if not cart:
+        return
+    with get_session() as session:
+        final_items = session.query(FinallyCarts).filter_by(cart_id=cart.id).all()
+        for item in final_items:
+            session.add(
+                Orders(
+                    cart_id=cart.id,
+                    product_name=item.product_name,
+                    quantity=item.quantity,
+                    final_price=item.final_price
+                )
+            )
+        session.commit()
+
 
 def db_clear_final_cart(chat_id):
+    '''чистим корзину после покупки'''
+    cart = db_get_user_cart(chat_id)
+    if not cart:
+        return
+    with get_session() as session:
+        query = delete(FinallyCarts).where(FinallyCarts.cart_id == cart.id)
+        session.execute(query)
+        session.commit()
+
+
+def db_get_product_for_delete(chat_id):
+    """Удаление товаров из корзины"""
+    with (get_session() as session):
+        query = (
+            select(FinallyCarts.id, FinallyCarts.product_name)
+            .join(Carts, FinallyCarts.cart_id == Carts.id)
+            .join(Users, Carts.user_id == Users.id)
+            .where(Users.telegram == chat_id))
+        return session.execute(query).fetchall()
+
+def db_increase_product_quantity(cart_id):
     pass

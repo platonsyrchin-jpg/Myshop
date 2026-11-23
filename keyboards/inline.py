@@ -44,7 +44,7 @@ def cart_actions_kb():
     builder.row(
         InlineKeyboardButton(text= "Оформить заказ🛎", callback_data= "confirm_order"),
         InlineKeyboardButton(text="Убрать товар❎", callback_data="choose_to_remove"),
-        InlineKeyboardButton(text="Добавить заказ✅", callback_data="choose-to_add"),
+        InlineKeyboardButton(text="Добавить заказ✅", callback_data="choose_to_add"),
     )
     builder.adjust(1, 2)
     return builder.as_markup()

@@ -9,7 +9,7 @@ router = Router()
 
 @router.callback_query(F.data == 'confirm_orders')
 async def confirm_order(callback: CallbackQuery, bot: Bot):
-    """подтверждение заказоы"""
+    """подтверждение заказа"""
     user = callback.from_user
     phone = db_get_user_phone(user.id)
     mention = f"<a href=\"https://t.me/{user.username}\">{user.username}</a>"
